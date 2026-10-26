@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-gray-50">
 <head>
@@ -117,9 +116,9 @@
                 <div class="pt-2">
                     <div class="flex flex-col sm:flex-row items-stretch gap-3">
                         <div class="relative flex-1">
-                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500 font-black text-xl">$</span>
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500 font-black text-xl">R$</span>
                             <input type="number" id="budget-input" step="0.50" min="0" placeholder="0.00" value="25.00"
-                                class="w-full pl-10 pr-4 py-3.5 bg-white text-gray-900 font-black text-2xl rounded-2xl shadow-inner border-2 border-transparent focus:border-locfood-yellow focus:outline-none transition-all placeholder:text-gray-300">
+                                class="w-full pl-12 pr-4 py-3.5 bg-white text-gray-900 font-black text-2xl rounded-2xl shadow-inner border-2 border-transparent focus:border-locfood-yellow focus:outline-none transition-all placeholder:text-gray-300">
                         </div>
                         <button onclick="updateFilters()" class="bg-locfood-yellow hover:bg-amber-400 text-gray-900 font-extrabold px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-base">
                             <i class="fa-solid fa-rotate"></i>
@@ -130,10 +129,10 @@
                     <!-- Budget Quick Presets -->
                     <div class="flex flex-wrap items-center gap-2 mt-4 text-xs font-semibold">
                         <span class="text-red-100">Quick presets:</span>
-                        <button onclick="setQuickBudget(15)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$15.00</button>
-                        <button onclick="setQuickBudget(25)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$25.00</button>
-                        <button onclick="setQuickBudget(35)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$35.00</button>
-                        <button onclick="setQuickBudget(50)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$50.00</button>
+                        <button onclick="setQuickBudget(15)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">R$ 15.00</button>
+                        <button onclick="setQuickBudget(25)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">R$ 25.00</button>
+                        <button onclick="setQuickBudget(35)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">R$ 35.00</button>
+                        <button onclick="setQuickBudget(50)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">R$ 50.00</button>
                     </div>
                 </div>
             </div>
@@ -212,7 +211,7 @@
                 </p>
                 <div class="flex justify-center gap-3">
                     <button onclick="setQuickBudget(35)" class="bg-locfood-red hover:bg-locfood-darkRed text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all">
-                        Increase Budget to $35
+                        Increase Budget to R$ 35
                     </button>
                     <button onclick="resetFilters()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-all">
                         Clear Filters
@@ -246,15 +245,15 @@
             <div class="space-y-1 text-sm">
                 <div class="flex justify-between text-gray-600">
                     <span>Food Subtotal</span>
-                    <span id="cart-subtotal">$0.00</span>
+                    <span id="cart-subtotal">R$ 0.00</span>
                 </div>
                 <div class="flex justify-between text-gray-600">
                     <span>Delivery Fee</span>
-                    <span id="cart-delivery">$0.00</span>
+                    <span id="cart-delivery">R$ 0.00</span>
                 </div>
                 <div class="flex justify-between font-black text-gray-900 text-base pt-2 border-t border-gray-200">
                     <span>Order Total</span>
-                    <span id="cart-total" class="text-locfood-red">$0.00</span>
+                    <span id="cart-total" class="text-locfood-red">R$ 0.00</span>
                 </div>
             </div>
 
@@ -577,11 +576,11 @@
                         <div>
                             <p class="text-[10px] text-gray-400 font-medium uppercase">Dish + Delivery</p>
                             <div class="flex items-baseline gap-1">
-                                <span class="text-xs font-bold text-gray-500">$</span>
+                                <span class="text-xs font-bold text-gray-500">R$</span>
                                 <span class="text-xl font-black text-locfood-red">${item.totalPrice.toFixed(2)}</span>
                             </div>
                             <p class="text-[10px] text-gray-500">
-                                (Item: $${item.price.toFixed(2)} + Fee: ${item.deliveryFee === 0 ? '<span class="text-emerald-600 font-bold">Free</span>' : `$${item.deliveryFee.toFixed(2)}`})
+                                (Item: R$ ${item.price.toFixed(2)} + Fee: ${item.deliveryFee === 0 ? '<span class="text-emerald-600 font-bold">Free</span>' : `R$ ${item.deliveryFee.toFixed(2)}`})
                             </p>
                         </div>
 
@@ -657,9 +656,9 @@
                         <p class="text-sm font-medium">Your cart is empty.</p>
                     </div>
                 `;
-                subtotalEl.innerText = "$0.00";
-                deliveryEl.innerText = "$0.00";
-                totalEl.innerText = "$0.00";
+                subtotalEl.innerText = "R$ 0.00";
+                deliveryEl.innerText = "R$ 0.00";
+                totalEl.innerText = "R$ 0.00";
                 checkoutBtn.disabled = true;
                 return;
             }
@@ -677,7 +676,7 @@
                         <div class="flex-1">
                             <h5 class="font-bold text-gray-800 text-xs leading-snug">${item.name}</h5>
                             <p class="text-[10px] text-gray-500">${item.restaurant}</p>
-                            <span class="text-xs font-black text-locfood-red">$${item.price.toFixed(2)}</span>
+                            <span class="text-xs font-black text-locfood-red">R$ ${item.price.toFixed(2)}</span>
                         </div>
 
                         <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
@@ -691,9 +690,9 @@
 
             const grandTotal = subtotal + maxDeliveryFee;
 
-            subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
-            deliveryEl.innerText = maxDeliveryFee === 0 ? "Free" : `$${maxDeliveryFee.toFixed(2)}`;
-            totalEl.innerText = `$${grandTotal.toFixed(2)}`;
+            subtotalEl.innerText = `R$ ${subtotal.toFixed(2)}`;
+            deliveryEl.innerText = maxDeliveryFee === 0 ? "Free" : `R$ ${maxDeliveryFee.toFixed(2)}`;
+            totalEl.innerText = `R$ ${grandTotal.toFixed(2)}`;
             checkoutBtn.disabled = false;
         }
 
