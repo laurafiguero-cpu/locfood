@@ -1,1 +1,767 @@
 
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Locfood - Budget Delivery for Students</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        locfood: {
+                            red: '#EA1D2C',
+                            darkRed: '#C7111E',
+                            lightRed: '#FFF1F2',
+                            yellow: '#FFB800',
+                            dark: '#1F2937'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+        .hide-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col text-gray-800 antialiased selection:bg-locfood-red selection:text-white">
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-30 bg-locfood-red text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <!-- Brand Logo -->
+            <div class="flex items-center gap-2 cursor-pointer" onclick="resetFilters()">
+                <div class="bg-white text-locfood-red w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xl shadow-inner">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <div>
+                    <h1 class="font-black text-2xl tracking-tight leading-none flex items-center gap-1">
+                        Locfood <span class="text-[10px] bg-white/20 text-white font-bold px-1.5 py-0.5 rounded tracking-wider uppercase">Student</span>
+                    </h1>
+                    <p class="text-[11px] text-red-100 font-medium">Budget food delivery tailored for you</p>
+                </div>
+            </div>
+
+            <!-- Header Actions -->
+            <div class="flex items-center gap-3">
+                <button id="gps-btn" onclick="getUserLocation()" class="hidden sm:flex items-center gap-1.5 bg-black/20 hover:bg-black/30 text-white text-xs font-semibold px-3 py-2 rounded-xl transition-all">
+                    <i class="fa-solid fa-location-crosshairs text-locfood-yellow"></i>
+                    <span id="gps-text">Use GPS</span>
+                </button>
+
+                <button onclick="toggleCartDrawer()" class="relative bg-white text-locfood-red hover:bg-red-50 font-bold px-3.5 py-2 rounded-xl shadow transition-transform active:scale-95 flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-cart-shopping text-base"></i>
+                    <span class="hidden md:inline">My Order</span>
+                    <span id="cart-count" class="bg-locfood-yellow text-gray-900 text-xs font-extrabold px-2 py-0.5 rounded-full">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Budget Banner & Control Card -->
+        <section class="bg-gradient-to-br from-locfood-red to-locfood-darkRed text-white rounded-3xl p-6 sm:p-8 shadow-xl relative overflow-hidden">
+            <!-- Background Decorative Circles -->
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-white/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div class="absolute right-40 -top-10 w-32 h-32 bg-locfood-yellow/20 rounded-full blur-xl pointer-events-none"></div>
+
+            <div class="relative z-10 max-w-3xl space-y-4">
+                <div class="inline-flex items-center gap-2 bg-white/15 px-3 py-1 rounded-full text-xs font-bold text-yellow-300 backdrop-blur-sm">
+                    <i class="fa-solid fa-graduation-cap"></i> Student Savings Guaranteed
+                </div>
+                <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight leading-tight">
+                    How much do you want to spend today?
+                </h2>
+                <p class="text-red-100 text-sm sm:text-base">
+                    We only show dishes from nearby restaurants where the total cost <span class="font-bold underline decoration-locfood-yellow">(food + delivery fee)</span> stays within your budget!
+                </p>
+
+                <!-- Main Budget Input Form -->
+                <div class="pt-2">
+                    <div class="flex flex-col sm:flex-row items-stretch gap-3">
+                        <div class="relative flex-1">
+                            <span class="absolute inset-y-0 left-0 pl-4 flex items-center text-gray-500 font-black text-xl">$</span>
+                            <input type="number" id="budget-input" step="0.50" min="0" placeholder="0.00" value="25.00"
+                                class="w-full pl-10 pr-4 py-3.5 bg-white text-gray-900 font-black text-2xl rounded-2xl shadow-inner border-2 border-transparent focus:border-locfood-yellow focus:outline-none transition-all placeholder:text-gray-300">
+                        </div>
+                        <button onclick="updateFilters()" class="bg-locfood-yellow hover:bg-amber-400 text-gray-900 font-extrabold px-8 py-3.5 rounded-2xl shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 text-base">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>Update Budget</span>
+                        </button>
+                    </div>
+
+                    <!-- Budget Quick Presets -->
+                    <div class="flex flex-wrap items-center gap-2 mt-4 text-xs font-semibold">
+                        <span class="text-red-100">Quick presets:</span>
+                        <button onclick="setQuickBudget(15)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$15.00</button>
+                        <button onclick="setQuickBudget(25)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$25.00</button>
+                        <button onclick="setQuickBudget(35)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$35.00</button>
+                        <button onclick="setQuickBudget(50)" class="bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-xl transition-colors border border-white/10">$50.00</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Secondary Filters Toolbar -->
+        <section class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 space-y-4">
+            <!-- Search & Distance Controls -->
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <!-- Search Input -->
+                <div class="md:col-span-6 relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm"></i>
+                    <input type="text" id="search-input" oninput="updateFilters()" placeholder="Search dish or restaurant (e.g., Bowl, Burger, Pizza)..."
+                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:bg-white focus:border-locfood-red focus:outline-none transition-all">
+                </div>
+
+                <!-- Distance Range Slider -->
+                <div class="md:col-span-6 flex items-center gap-3 bg-gray-50 p-2.5 border border-gray-200 rounded-xl">
+                    <i class="fa-solid fa-person-walking text-locfood-red text-sm pl-1"></i>
+                    <div class="flex-1">
+                        <div class="flex justify-between items-center text-xs font-semibold text-gray-600 mb-1">
+                            <span>Search Radius</span>
+                            <span id="distance-val" class="text-locfood-red font-bold">10 km</span>
+                        </div>
+                        <input type="range" id="distance-range" min="1" max="15" value="10" step="1" oninput="updateDistanceLabel(this.value); updateFilters();"
+                            class="w-full accent-locfood-red h-1.5 bg-gray-200 rounded-lg cursor-pointer">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cuisine Type Category Chips -->
+            <div>
+                <p class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Food Categories</p>
+                <div id="category-chips" class="flex items-center gap-2 overflow-x-auto pb-1 hide-scrollbar">
+                    <!-- Dynamic Categories injected here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Dynamic Results Section -->
+        <section class="space-y-4">
+            <!-- Results Header / Summary -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-3">
+                <div>
+                    <h3 class="text-lg font-extrabold text-gray-900 flex items-center gap-2">
+                        <span>Available Options</span>
+                        <span id="results-count-badge" class="bg-gray-200 text-gray-800 text-xs font-bold px-2.5 py-0.5 rounded-full">0</span>
+                    </h3>
+                    <p id="filter-summary-text" class="text-xs text-gray-500 mt-0.5">Showing options strictly within your budget limit</p>
+                </div>
+
+                <!-- Sorting Option -->
+                <div class="flex items-center gap-2 text-xs">
+                    <label for="sort-select" class="text-gray-500 font-medium">Sort by:</label>
+                    <select id="sort-select" onchange="updateFilters()" class="bg-white border border-gray-200 rounded-lg px-2.5 py-1.5 font-medium text-gray-700 focus:outline-none focus:border-locfood-red">
+                        <option value="price-asc">Lowest Total Price</option>
+                        <option value="distance-asc">Nearest Distance</option>
+                        <option value="rating-desc">Highest Rating</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Results Grid -->
+            <div id="food-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+                <!-- Food Cards will be populated here via JavaScript -->
+            </div>
+
+            <!-- Empty State Container -->
+            <div id="empty-state" class="hidden text-center py-12 px-4 bg-white rounded-3xl border border-dashed border-gray-300">
+                <div class="w-20 h-20 bg-red-50 text-locfood-red rounded-full flex items-center justify-center text-3xl mx-auto mb-4 shadow-inner">
+                    <i class="fa-solid fa-cookie-bite"></i>
+                </div>
+                <h4 class="text-lg font-bold text-gray-900 mb-1">No options found within this budget</h4>
+                <p class="text-sm text-gray-500 max-w-md mx-auto mb-6">
+                    Try slightly increasing your budget amount or expanding the search distance radius.
+                </p>
+                <div class="flex justify-center gap-3">
+                    <button onclick="setQuickBudget(35)" class="bg-locfood-red hover:bg-locfood-darkRed text-white text-xs font-bold px-4 py-2.5 rounded-xl transition-all">
+                        Increase Budget to $35
+                    </button>
+                    <button onclick="resetFilters()" class="bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-all">
+                        Clear Filters
+                    </button>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Cart Side Drawer Overlay & Panel -->
+    <div id="cart-drawer-backdrop" onclick="toggleCartDrawer()" class="fixed inset-0 bg-black/50 z-40 hidden transition-opacity duration-300 opacity-0"></div>
+    <aside id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 flex flex-col">
+        <!-- Drawer Header -->
+        <div class="p-4 bg-locfood-red text-white flex items-center justify-between shadow-sm">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-bag-shopping text-xl"></i>
+                <h3 class="font-bold text-lg">Your Locfood Order</h3>
+            </div>
+            <button onclick="toggleCartDrawer()" class="w-8 h-8 rounded-full bg-black/10 hover:bg-black/20 flex items-center justify-center transition-colors">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        <!-- Drawer Body: Cart Items -->
+        <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-gray-100">
+            <!-- Items injected dynamically -->
+        </div>
+
+        <!-- Drawer Footer: Summary & Checkout -->
+        <div class="p-4 bg-gray-50 border-t border-gray-200 space-y-3">
+            <div class="space-y-1 text-sm">
+                <div class="flex justify-between text-gray-600">
+                    <span>Food Subtotal</span>
+                    <span id="cart-subtotal">$0.00</span>
+                </div>
+                <div class="flex justify-between text-gray-600">
+                    <span>Delivery Fee</span>
+                    <span id="cart-delivery">$0.00</span>
+                </div>
+                <div class="flex justify-between font-black text-gray-900 text-base pt-2 border-t border-gray-200">
+                    <span>Order Total</span>
+                    <span id="cart-total" class="text-locfood-red">$0.00</span>
+                </div>
+            </div>
+
+            <button id="checkout-btn" onclick="processCheckout()" disabled class="w-full bg-locfood-red disabled:bg-gray-300 disabled:cursor-not-allowed hover:bg-locfood-darkRed text-white font-extrabold py-3.5 rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 text-sm">
+                <span>Place Order</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Application JavaScript Logic -->
+    <script>
+        // Default User Coordinates (Simulated Campus Location)
+        let userLocation = {
+            lat: -23.550520,
+            lng: -46.633308,
+            isGPS: false
+        };
+
+        // Student-friendly sample dataset translated into English
+        const cuisineCategories = [
+            { id: 'all', name: 'All', icon: 'fa-border-all' },
+            { id: 'marmita', name: 'Meal Bowls & Home-style', icon: 'fa-bowl-rice' },
+            { id: 'burger', name: 'Burgers & Sandwiches', icon: 'fa-burger' },
+            { id: 'pizza', name: 'Pizza', icon: 'fa-pizza-slice' },
+            { id: 'japonesa', name: 'Asian & Sushi', icon: 'fa-fish-fins' },
+            { id: 'salgado', name: 'Snacks & Fries', icon: 'fa-hotdog' },
+            { id: 'doce', name: 'Sweets & Desserts', icon: 'fa-ice-cream' }
+        ];
+
+        const foodDatabase = [
+            {
+                id: 1,
+                name: "Classic Beef Rice Bowl with Onions & Beans",
+                restaurant: "Mama Mary's Diner",
+                category: "marmita",
+                price: 14.50,
+                rating: 4.8,
+                prepTime: "20-30 min",
+                image: "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&auto=format&fit=crop&q=80",
+                lat: -23.552100,
+                lng: -46.635000,
+                studentPromo: true
+            },
+            {
+                id: 2,
+                name: "Classic Smash Cheeseburger + Small Fries",
+                restaurant: "Campus Burger Joint",
+                category: "burger",
+                price: 18.90,
+                rating: 4.7,
+                prepTime: "25-35 min",
+                image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&auto=format&fit=crop&q=80",
+                lat: -23.548900,
+                lng: -46.631000,
+                studentPromo: false
+            },
+            {
+                id: 3,
+                name: "Fried Chicken Bites Combo + Soda 350ml",
+                restaurant: "Joe's Snack Bar",
+                category: "salgado",
+                price: 11.00,
+                rating: 4.9,
+                prepTime: "10-20 min",
+                image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=500&auto=format&fit=crop&q=80",
+                lat: -23.553000,
+                lng: -46.632500,
+                studentPromo: true
+            },
+            {
+                id: 4,
+                name: "Personal Mozzarella & Pepperoni Pizza",
+                restaurant: "Student Pizza Co.",
+                category: "pizza",
+                price: 22.00,
+                rating: 4.5,
+                prepTime: "30-45 min",
+                image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&auto=format&fit=crop&q=80",
+                lat: -23.556000,
+                lng: -46.639000,
+                studentPromo: false
+            },
+            {
+                id: 5,
+                name: "Smoothie Fruit Bowl 400ml with Powdered Milk & Banana",
+                restaurant: "Campus Smoothie Bar",
+                category: "doce",
+                price: 13.50,
+                rating: 4.8,
+                prepTime: "10-15 min",
+                image: "https://images.unsplash.com/photo-1590301157890-4810ed352733?w=500&auto=format&fit=crop&q=80",
+                lat: -23.549800,
+                lng: -46.636000,
+                studentPromo: true
+            },
+            {
+                id: 6,
+                name: "Crispy Salmon Tempura Sushi Roll (8 pcs)",
+                restaurant: "Harumaki Express",
+                category: "japonesa",
+                price: 24.90,
+                rating: 4.6,
+                prepTime: "25-40 min",
+                image: "https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=500&auto=format&fit=crop&q=80",
+                lat: -23.558000,
+                lng: -46.629000,
+                studentPromo: false
+            },
+            {
+                id: 7,
+                name: "Grilled Chicken Meal Bowl with Fresh Salad",
+                restaurant: "Healthy & Affordable",
+                category: "marmita",
+                price: 16.00,
+                rating: 4.4,
+                prepTime: "20-30 min",
+                image: "https://images.unsplash.com/photo-1543339308-43e59d6b73a6?w=500&auto=format&fit=crop&q=80",
+                lat: -23.545000,
+                lng: -46.638000,
+                studentPromo: true
+            },
+            {
+                id: 8,
+                name: "Jumbo Cheese & Beef Pastry",
+                restaurant: "Quick Bites Bakery",
+                category: "salgado",
+                price: 12.50,
+                rating: 4.7,
+                prepTime: "15-25 min",
+                image: "https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=500&auto=format&fit=crop&q=80",
+                lat: -23.551500,
+                lng: -46.628000,
+                studentPromo: false
+            },
+            {
+                id: 9,
+                name: "Double Bacon Cheeseburger Combo + Medium Fries",
+                restaurant: "Campus Burger Joint",
+                category: "burger",
+                price: 28.00,
+                rating: 4.7,
+                prepTime: "25-35 min",
+                image: "https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&auto=format&fit=crop&q=80",
+                lat: -23.548900,
+                lng: -46.631000,
+                studentPromo: true
+            }
+        ];
+
+        // App State
+        let currentBudget = 25.00;
+        let selectedCategory = 'all';
+        let maxDistance = 10;
+        let cart = [];
+
+        // Haversine formula for GPS distance calculation in km
+        function calculateDistanceKm(lat1, lon1, lat2, lon2) {
+            const R = 6371; // Earth radius in km
+            const dLat = (lat2 - lat1) * Math.PI / 180;
+            const dLon = (lon2 - lon1) * Math.PI / 180;
+            const a = 
+                Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+                Math.sin(dLon/2) * Math.sin(dLon/2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            return parseFloat((R * c).toFixed(1));
+        }
+
+        // Calculate delivery fee based on distance
+        function calculateDeliveryFee(distanceKm, isStudentPromo) {
+            if (isStudentPromo && distanceKm <= 2.0) {
+                return 0.00; // Free delivery for close student promos
+            }
+            const baseFee = 3.00;
+            const perKmFee = 1.20;
+            return parseFloat((baseFee + (distanceKm * perKmFee)).toFixed(2));
+        }
+
+        // Initialize UI Elements
+        document.addEventListener("DOMContentLoaded", () => {
+            renderCategoryChips();
+            updateFilters();
+        });
+
+        // Render Category Filter Chips
+        function renderCategoryChips() {
+            const container = document.getElementById('category-chips');
+            container.innerHTML = cuisineCategories.map(cat => `
+                <button onclick="selectCategory('${cat.id}')" 
+                    class="chip-btn flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                        selectedCategory === cat.id 
+                        ? 'bg-locfood-red text-white border-locfood-red shadow-sm' 
+                        : 'bg-gray-100 hover:bg-gray-200 text-gray-700 border-transparent'
+                    }">
+                    <i class="fa-solid ${cat.icon}"></i>
+                    <span>${cat.name}</span>
+                </button>
+            `).join('');
+        }
+
+        function selectCategory(catId) {
+            selectedCategory = catId;
+            renderCategoryChips();
+            updateFilters();
+        }
+
+        function setQuickBudget(val) {
+            document.getElementById('budget-input').value = val.toFixed(2);
+            updateFilters();
+        }
+
+        function updateDistanceLabel(val) {
+            maxDistance = parseFloat(val);
+            document.getElementById('distance-val').innerText = `${val} km`;
+        }
+
+        // Trigger Filters and Render Food Items
+        function updateFilters() {
+            const budgetInputValue = parseFloat(document.getElementById('budget-input').value);
+            currentBudget = isNaN(budgetInputValue) ? 0 : budgetInputValue;
+
+            const searchTerm = document.getElementById('search-input').value.toLowerCase().trim();
+            const sortBy = document.getElementById('sort-select').value;
+
+            // Process items calculation
+            let processedItems = foodDatabase.map(item => {
+                const distance = calculateDistanceKm(userLocation.lat, userLocation.lng, item.lat, item.lng);
+                const deliveryFee = calculateDeliveryFee(distance, item.studentPromo);
+                const totalPrice = item.price + deliveryFee;
+                return { ...item, distance, deliveryFee, totalPrice };
+            });
+
+            // Apply Filter Logic
+            let filtered = processedItems.filter(item => {
+                const fitsBudget = item.totalPrice <= currentBudget;
+                const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+                const matchesSearch = item.name.toLowerCase().includes(searchTerm) || item.restaurant.toLowerCase().includes(searchTerm);
+                const matchesDistance = item.distance <= maxDistance;
+
+                return fitsBudget && matchesCategory && matchesSearch && matchesDistance;
+            });
+
+            // Sorting Logic
+            filtered.sort((a, b) => {
+                if (sortBy === 'price-asc') return a.totalPrice - b.totalPrice;
+                if (sortBy === 'distance-asc') return a.distance - b.distance;
+                if (sortBy === 'rating-desc') return b.rating - a.rating;
+                return 0;
+            });
+
+            renderFoodGrid(filtered);
+        }
+
+        // Render Food Cards into Grid
+        function renderFoodGrid(items) {
+            const grid = document.getElementById('food-grid');
+            const emptyState = document.getElementById('empty-state');
+            const countBadge = document.getElementById('results-count-badge');
+
+            countBadge.innerText = items.length;
+
+            if (items.length === 0) {
+                grid.classList.add('hidden');
+                emptyState.classList.remove('hidden');
+                return;
+            }
+
+            grid.classList.remove('hidden');
+            emptyState.classList.add('hidden');
+
+            grid.innerHTML = items.map(item => `
+                <div class="bg-white rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+                    <div>
+                        <!-- Image Container -->
+                        <div class="relative h-44 w-full overflow-hidden bg-gray-100">
+                            <img src="${item.image}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            
+                            <!-- Fits Budget Tag -->
+                            <div class="absolute top-3 left-3 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg shadow">
+                                <i class="fa-solid fa-check"></i> Fits Budget
+                            </div>
+
+                            ${item.studentPromo ? `
+                                <div class="absolute top-3 right-3 bg-locfood-yellow text-gray-900 text-[10px] font-black uppercase tracking-wider px-2.5 py-1 rounded-lg shadow">
+                                    Student Promo
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Card Body -->
+                        <div class="p-4 space-y-2">
+                            <div class="flex items-center justify-between text-xs text-gray-500">
+                                <span class="font-semibold text-gray-700 truncate max-w-[170px]">${item.restaurant}</span>
+                                <span class="flex items-center gap-1 text-amber-500 font-bold">
+                                    <i class="fa-solid fa-star text-[10px]"></i> ${item.rating}
+                                </span>
+                            </div>
+
+                            <h4 class="font-extrabold text-gray-900 text-base leading-snug line-clamp-2">${item.name}</h4>
+
+                            <!-- Delivery & Distance Info -->
+                            <div class="flex items-center gap-3 text-xs text-gray-500 pt-1">
+                                <span class="flex items-center gap-1">
+                                    <i class="fa-solid fa-location-dot text-locfood-red"></i> ${item.distance} km
+                                </span>
+                                <span>•</span>
+                                <span class="flex items-center gap-1">
+                                    <i class="fa-regular fa-clock"></i> ${item.prepTime}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pricing & Action Footer -->
+                    <div class="p-4 bg-gray-50/80 border-t border-gray-100 flex items-center justify-between gap-2">
+                        <div>
+                            <p class="text-[10px] text-gray-400 font-medium uppercase">Dish + Delivery</p>
+                            <div class="flex items-baseline gap-1">
+                                <span class="text-xs font-bold text-gray-500">$</span>
+                                <span class="text-xl font-black text-locfood-red">${item.totalPrice.toFixed(2)}</span>
+                            </div>
+                            <p class="text-[10px] text-gray-500">
+                                (Item: $${item.price.toFixed(2)} + Fee: ${item.deliveryFee === 0 ? '<span class="text-emerald-600 font-bold">Free</span>' : `$${item.deliveryFee.toFixed(2)}`})
+                            </p>
+                        </div>
+
+                        <button onclick="addToCart(${item.id})" class="bg-locfood-red hover:bg-locfood-darkRed text-white font-extrabold px-3.5 py-2.5 rounded-xl text-xs shadow hover:shadow-md active:scale-95 transition-all flex items-center gap-1.5">
+                            <i class="fa-solid fa-plus"></i>
+                            <span>Add</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Cart Drawer Operations
+        function toggleCartDrawer() {
+            const drawer = document.getElementById('cart-drawer');
+            const backdrop = document.getElementById('cart-drawer-backdrop');
+
+            if (drawer.classList.contains('translate-x-full')) {
+                drawer.classList.remove('translate-x-full');
+                backdrop.classList.remove('hidden');
+                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+            } else {
+                drawer.classList.add('translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 300);
+            }
+        }
+
+        function addToCart(itemId) {
+            const item = foodDatabase.find(f => f.id === itemId);
+            if (!item) return;
+
+            const distance = calculateDistanceKm(userLocation.lat, userLocation.lng, item.lat, item.lng);
+            const deliveryFee = calculateDeliveryFee(distance, item.studentPromo);
+
+            const existing = cart.find(c => c.id === itemId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...item, distance, deliveryFee, qty: 1 });
+            }
+
+            renderCart();
+            showToast(`"${item.name}" added to your order!`);
+        }
+
+        function updateCartQty(itemId, change) {
+            const index = cart.findIndex(c => c.id === itemId);
+            if (index !== -1) {
+                cart[index].qty += change;
+                if (cart[index].qty <= 0) {
+                    cart.splice(index, 1);
+                }
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            const cartCountBadge = document.getElementById('cart-count');
+            const subtotalEl = document.getElementById('cart-subtotal');
+            const deliveryEl = document.getElementById('cart-delivery');
+            const totalEl = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+
+            const totalQty = cart.reduce((sum, item) => sum + item.qty, 0);
+            cartCountBadge.innerText = totalQty;
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12 text-gray-400 space-y-2">
+                        <i class="fa-solid fa-basket-shopping text-4xl text-gray-300"></i>
+                        <p class="text-sm font-medium">Your cart is empty.</p>
+                    </div>
+                `;
+                subtotalEl.innerText = "$0.00";
+                deliveryEl.innerText = "$0.00";
+                totalEl.innerText = "$0.00";
+                checkoutBtn.disabled = true;
+                return;
+            }
+
+            let subtotal = 0;
+            let maxDeliveryFee = 0;
+
+            container.innerHTML = cart.map(item => {
+                const itemTotal = item.price * item.qty;
+                subtotal += itemTotal;
+                if (item.deliveryFee > maxDeliveryFee) maxDeliveryFee = item.deliveryFee;
+
+                return `
+                    <div class="flex items-center justify-between gap-3 pt-3 first:pt-0">
+                        <div class="flex-1">
+                            <h5 class="font-bold text-gray-800 text-xs leading-snug">${item.name}</h5>
+                            <p class="text-[10px] text-gray-500">${item.restaurant}</p>
+                            <span class="text-xs font-black text-locfood-red">$${item.price.toFixed(2)}</span>
+                        </div>
+
+                        <div class="flex items-center gap-2 bg-gray-100 p-1 rounded-lg">
+                            <button onclick="updateCartQty(${item.id}, -1)" class="w-6 h-6 rounded bg-white text-gray-700 font-bold text-xs flex items-center justify-center shadow-sm">-</button>
+                            <span class="text-xs font-bold px-1">${item.qty}</span>
+                            <button onclick="updateCartQty(${item.id}, 1)" class="w-6 h-6 rounded bg-white text-gray-700 font-bold text-xs flex items-center justify-center shadow-sm">+</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const grandTotal = subtotal + maxDeliveryFee;
+
+            subtotalEl.innerText = `$${subtotal.toFixed(2)}`;
+            deliveryEl.innerText = maxDeliveryFee === 0 ? "Free" : `$${maxDeliveryFee.toFixed(2)}`;
+            totalEl.innerText = `$${grandTotal.toFixed(2)}`;
+            checkoutBtn.disabled = false;
+        }
+
+        function processCheckout() {
+            showToast("🚀 Order placed successfully! Enjoy your meal!", "success");
+            cart = [];
+            renderCart();
+            toggleCartDrawer();
+        }
+
+        // GPS Location Handling
+        function getUserLocation() {
+            const gpsText = document.getElementById('gps-text');
+            if (navigator.geolocation) {
+                gpsText.innerText = "Getting GPS...";
+                navigator.geolocation.getCurrentPosition(
+                    (pos) => {
+                        userLocation.lat = pos.coords.latitude;
+                        userLocation.lng = pos.coords.longitude;
+                        userLocation.isGPS = true;
+
+                        gpsText.innerText = "GPS Active";
+                        showToast("GPS location updated successfully!", "info");
+                        updateFilters();
+                    },
+                    (err) => {
+                        gpsText.innerText = "Use GPS";
+                        showToast("Unable to access GPS location. Using default location.", "error");
+                    }
+                );
+            } else {
+                showToast("Geolocation is not supported by your browser.", "error");
+            }
+        }
+
+        // Reset Filters Action
+        function resetFilters() {
+            document.getElementById('budget-input').value = "25.00";
+            document.getElementById('search-input').value = "";
+            document.getElementById('distance-range').value = 10;
+            updateDistanceLabel(10);
+            selectedCategory = 'all';
+            renderCategoryChips();
+            updateFilters();
+            showToast("Filters reset to default");
+        }
+
+        // Toast Notification Function
+        function showToast(message, type = "info") {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            const bgClass = type === 'success' ? 'bg-emerald-600' : type === 'error' ? 'bg-red-600' : 'bg-gray-900';
+
+            toast.className = `pointer-events-auto ${bgClass} text-white text-xs font-bold px-4 py-3 rounded-xl shadow-xl flex items-center gap-2 transition-all transform translate-y-2 opacity-0`;
+            toast.innerHTML = `<i class="fa-solid fa-circle-info"></i><span>${message}</span>`;
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-2', 'opacity-0');
+            }, 10);
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
